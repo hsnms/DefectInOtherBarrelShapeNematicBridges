@@ -34,16 +34,18 @@ int main()
     int i,j,k,n,ncycle=5,ii,ii2,ii3,ii4,sos,kk,radius,min,n1,RR;
     double **u,*x,*y,*z,*z2,*q,**v,**f;
     int *qq;
-    double result,zero,rev2,rev3,v1,v2,v4,K,t,sum,result22,sum2,fff,dfff,KK,XX;
-	double m,point,point2,H,h,R0; int a,b; 
+    double result,zero,rev2,rev3,v1,v2,v4,K,t,sum,result22,sum2,fff,dfff,KK,XX, h1,h2;
+    double m,point,point2,H,h,R0,R00; int a,b; 
 	FILE *fp,*fp2,*fp3;
-
+		h1=0.2;h2=1.0;
+	//h1=0.75;h2=4.0;
 	printf ("Number of lattices vertically, n:");
 	scanf("%d", &n);
 	//n=17;
-	printf ("Aspect ratio, R0:");
-	scanf("%lf", &R0);
+	printf ("Aspect ratio, R00:");
+	scanf("%lf", &R00);
 	//R0=4.0;
+	R0=2.0*R00;
 	H=1.0;
 	printf ("Frank constant ratio, K:");
 	scanf("%lf", &K);
@@ -54,6 +56,18 @@ int main()
         printf ("File not created okay, errno = %d\n", errno);
         return 1;
     }
+
+	fp2 = fopen ("BridgeVectorField.txt","w");
+	fp3=fopen ("Boundary.txt","w");
+  
+	if (fp2 == NULL) {
+        printf ("File 2 not created okay, errno = %d\n", errno);
+        return 1;
+    }
+		if (fp3 == NULL) {
+        printf ("File 2 not created okay, errno = %d\n", errno);
+        return 1;
+	}
 
         printf ("How many of the lattice spaces does the length of the defect core occupy? b:");
 	scanf("%d", &b);
@@ -75,7 +89,7 @@ int main()
 	x=dvectornew(1,(int)(n*R0-R0+1));
 	y=dvectornew(1,(int)(n*H-H+1));
 	z=dvectornew(1,(int)(n*R0-R0+1));
-	z2=dvectornew(1,(int)(n*H-H+1));
+ 	z2=dvectornew(1,(int)(n*H-H+1));
 	for (i=1;i<=(int)(n*R0-R0+1);i++)
 	{
         
@@ -90,18 +104,26 @@ int main()
 	for (j=1;j<=(int)(n*H-H+1);j++)//curved boundary function
 		{
 			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);/*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4) for barrel; 
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);/*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4) for barrel; 
 R0-0.75*pow(H,4)+0.75*pow(1.0*(j-1)/(n-1),4) for waist*/
 
 		 
 		  qq[j]=round(n*q[j]-q[j]+1);
+		   printf("qq[%d]=%d\n",j,qq[j]);
+		   	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	    }
 		}
 
-	for (j=(int)(n*H-H+1);j>=1;j--)//something new, make sure it's barrel
+
+	
+
+	/* really new	for (j=(int)(n*H-H+1);j>=1;j--)//something new, make sure it's barrel
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
  
 	for(i=1;i<=(int)(n*R0-R0+1);i++)//initially points up
@@ -183,33 +205,49 @@ n1=1;
 		fprintf(fp,"z[1]=%f\t\n{0, %f},\nzero=%f\n",z[1],z[1],zero);
 
 
-		/*	for(j=1;j<=(int)((n*H-H+1));j++)
-	  { 
-	    for(i=1;i<=qq[j];i++)
+       
 
-	      {
-		if (u[i][j]<=Pi/4)
-		  printf("u[%d][%d]=%f\n",i,j,u[i][j]);
-	      }
-	      }*/
+	
+		//Directors on the boundary
+		for (j=2;j<=(int)(n*H-H+1)-2;j=j+1)
+			{
+		      
+			    
+		 printf("Arrow[{{%f,%f},{%f,%f}}],\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1),1.0*(qq[j]-2)/(n-1)+0.07*sin(u[qq[j]-1][j]),1.0*(j-1)/(n-1)+0.07*cos(u[qq[j]-1][j]));
+		 fprintf(fp,"Arrow[{{%f,%f},{%f,%f}}],\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1),1.0*(qq[j]-2)/(n-1)+0.07*sin(u[qq[j]-1][j]),1.0*(j-1)/(n-1)+0.07*cos(u[qq[j]-1][j]));
+		}
+    
+		//print the curved boundary
+	
+    for (j=2;j<=(int)(n*H-H+1)-2;j=j+1)
+    	{ 
+    printf("{%f,%f},\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1));
+    fprintf(fp,"{%f,%f},\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1));
+    	}
 
 
+    
 
 		//ring defect with smallest radius
-                a=1+2*b;
+                a=1+2*b;kk=a;
 		//initial and boundary conditions
 		for (j=1;j<=(int)(n*H-H+1);j++)
 		{
 			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+
+	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
 
-		for (j=(int)(n*H-H+1);j>=1;j--)
+		/* really new	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
  for(j=1;j<=(int)(n*H-H+1);j++)
@@ -329,14 +367,18 @@ n1=1;
 	for (j=1;j<=(int)(n*H-H+1);j++)
 		{
 			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+		  if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
-	for (j=(int)(n*H-H+1);j>=1;j--)
+	/* really new	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
  for(j=1;j<=(int)(n*H-H+1);j++)
@@ -395,7 +437,7 @@ for(j=2;j<=(int)(n*H-H+1)-1;j++)
 	for (i=a+1;i<=a+b;i++)
 	{
 	  //	u[i][1+b]=0.5*atan((y[1+b]-y[1])/((x[i]-x[a])))+0.5*Pi-((1.0/(24.0*Pi*Pi))*((K-1.0)/(K+1.0))*sin(3.0*atan((y[1+b]-y[1])/((x[i]-x[a])))));
-	    u[a+b][j]=0.5*atan((y[j]-y[1])/((x[a+b]-x[a])))+0.5*Pi-((5.0/36.0)*((K-1.0)/(K+1.0))*sin(3.0*atan((y[j]-y[1])/((x[a+b]-x[a])))));
+	 u[i][1+b]=0.5*atan((y[1+b]-y[1])/((x[i]-x[a])))+0.5*Pi-((5.0/36.0)*((K-1.0)/(K+1.0))*sin(3.0*atan((y[1+b]-y[1])/((x[i]-x[a])))));
 	}
 	//	u[a][1+b]=0.5*0.5*Pi+0.5*Pi-((1.0/(24.0*Pi*Pi))*((K-1.0)/(K+1.0))*sin(3.0*0.5*Pi));
 		u[a][1+b]=0.5*0.5*Pi+0.5*Pi-((5.0/36.0)*((K-1.0)/(K+1.0))*sin(3.0*0.5*Pi));
@@ -458,16 +500,19 @@ for(j=2;j<=(int)(n*H-H+1)-1;j++)
 	for (j=1;j<=(int)(n*H-H+1);j++)
 		{
 			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
-		  
+		  if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
 
-	for (j=(int)(n*H-H+1);j>=1;j--)
+	/*really new	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
  
 for(i=1;i<=(int)(n*R0-R0+1);i++)
@@ -547,25 +592,44 @@ n1=1;
 		fprintf(fp,"z[1]=%f\t\n{0, %f},\nzero=%f\n",z[1],z[1],zero);
 
 
-
+	
+		//Directors on the boundary
+		for (j=2;j<=(int)(n*H-H+1)-2;j=j+1)
+			{
+		      
+			    
+		 printf("Arrow[{{%f,%f},{%f,%f}}],\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1),1.0*(qq[j]-2)/(n-1)+0.07*sin(u[qq[j]-1][j]),1.0*(j-1)/(n-1)+0.07*cos(u[qq[j]-1][j]));
+		 fprintf(fp,"Arrow[{{%f,%f},{%f,%f}}],\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1),1.0*(qq[j]-2)/(n-1)+0.07*sin(u[qq[j]-1][j]),1.0*(j-1)/(n-1)+0.07*cos(u[qq[j]-1][j]));
+		}
+    
+		//print the curved boundary
+    for (j=2;j<=(int)(n*H-H+1)-2;j=j+1)
+    	{
+    printf("{%f,%f},\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1));
+    fprintf(fp,"{%f,%f},\n",1.0*(qq[j]-2)/(n-1),1.0*(j-1)/(n-1));
+    	}
 
 		//ring defect with smallest radius
 
-		a=1+2*b;
+		a=1+2*b;kk=a;
 		//initial and outer boundary conditions
 for (j=1;j<=(int)(n*H-H+1);j++)
 		{
 			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
 
  
-		for (j=(int)(n*H-H+1);j>=1;j--)
+/*really new	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
  
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
@@ -695,14 +759,19 @@ for(kk=1+2*b;kk<=qq[1]-b-1;kk++)
 for (j=1;j<=(int)(n*H-H+1);j++)
 		{
 			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+
+		  	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
- for (j=(int)(n*H-H+1);j>=1;j--)
+/*really new for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
@@ -811,7 +880,7 @@ for(j=2;j<=(int)(n*H-H+1)-1;j++)
 			
 
 	printf("Total energy=%f\t\nRing radius=%d\n",result,radius);
-	fprintf(fp,"Number of lattices vertically n=%d\nNumber of the lattice spaces the length of the core occupies b=%d\nDefect type m=%f\nAspect ratio R0=%f\nFrank constant ratio K=%f\nTotal energy=%f\nRing radius=%d\n",n,b,m,R0,K,result,radius);
+	fprintf(fp,"Number of lattices vertically n=%d\nNumber of the lattice spaces the length of the core occupies b=%d\nDefect type m=%f\nAspect ratio R00=%f\nFrank constant ratio K=%f\nTotal energy=%f\nRing radius=%d\n",n,b,m,R00,K,result,radius);
 	
 
 	fclose (fp);

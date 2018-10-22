@@ -14,12 +14,9 @@ void **nrfunc4new(double **f, double **u, int n, int *qq,int b,double R0, double
 		  f[i][j]=0.0;//initially integrand is zero
 	
 	//inside, only half of the region
-	// really new	for(j=b+2;j<=(int)((n*H-H+1))/2;j++)/*for(j=b+2;j<(int)((n*H-H+1))-(n-1)/8;j++) for waist*/
-
-	for(j=b+2;j<(int)((n*H-H+1))-b-b-b;j++) 
+	for(j=b+2;j<=(int)((n*H-H+1))/2;j++)/*for(j=b+2;j<(int)((n*H-H+1))-(n-1)/8;j++) for waist*/
 	  { v=0.0;
-	    // really new  for (i=2;i<qq[j-1]-(n-1)/8;i++)/*qq[(int)((n*H-H+1))];i++)*//*(i=qq[j-1]-(n-1)/8;i<qq[j-1]-(n-1)/16;i++)*//*for (i=2;i<qq[j-1]-(n-1)/8;i++) for waist*/
-	        for (i=2;i<qq[j+1]-b;i++)
+	    for (i=2;i<qq[j-1]-(n-1)/8;i++)/*qq[(int)((n*H-H+1))];i++)*//*(i=qq[j-1]-(n-1)/8;i<qq[j-1]-(n-1)/16;i++)*//*for (i=2;i<qq[j-1]-(n-1)/8;i++) for waist*/
 			  {
 			v1=u[i][j+1]-u[i][j];
 		    v2=u[i][j]-u[i][j-1];
@@ -38,11 +35,9 @@ void **nrfunc4new(double **f, double **u, int n, int *qq,int b,double R0, double
 
 
 	//inside, the other half of the region
-	//really new	for(j=(int)((n*H-H+1))/2+1;j<(int)((n*H-H+1))-(n-1)/8;j++)/*for(j=b+2;j<(int)((n*H-H+1))-(n-1)/8;j++) for waist*/
-	for(j=(int)((n*H-H+1))-b-b-b;j<(int)((n*H-H+1))-b;j++)
+	for(j=(int)((n*H-H+1))/2+1;j<(int)((n*H-H+1))-(n-1)/8;j++)/*for(j=b+2;j<(int)((n*H-H+1))-(n-1)/8;j++) for waist*/
 	  { v=0.0;
-	    //really new for (i=2;i<qq[(int)((n*H-H+1))];i++)/*(i=qq[j-1]-(n-1)/8;i<qq[j-1]-(n-1)/16;i++)*//*for (i=2;i<qq[j-1]-(n-1)/8;i++) for waist*/
-	     for (i=2;i<qq[j+1]-b;i++)
+	    for (i=2;/*i<qq[j-1]-(n-1)*R0/4*/i<qq[(int)((n*H-H+1))];i++)/*(i=qq[j-1]-(n-1)/8;i<qq[j-1]-(n-1)/16;i++)*//*for (i=2;i<qq[j-1]-(n-1)/8;i++) for waist*/
 			  {
 			v1=u[i][j+1]-u[i][j];
 		    v2=u[i][j]-u[i][j-1];
@@ -67,8 +62,7 @@ void **nrfunc4new(double **f, double **u, int n, int *qq,int b,double R0, double
 	
 		for(j=2;j<=1+b;j++)
 		{
-		  // really new for (i=b+2;i<qq[j]-(n-1)/8;i++) /* for (i=b+2;i<qq[j]-(n-1)/8;i++) for waist*/
-		  for (i=b+2;i<qq[j];i++)
+		  for (i=b+2;i<qq[j]-(n-1)/8;i++) /* for (i=b+2;i<qq[j]-(n-1)/8;i++) for waist*/
 			{
 			v1=u[i][j+1]-u[i][j];
 		    v2=u[i][j]-u[i][j-1];
@@ -90,7 +84,7 @@ void **nrfunc4new(double **f, double **u, int n, int *qq,int b,double R0, double
 
 
 
-		/*	for (i=b+2;i<=qq[1]-1-(n-1)/8;i++)//for (i=b+2;i<=qq[1]-1-(n-1)/8;i++) for waist
+		for (i=b+2;i<=qq[1]-1-(n-1)/8;i++)/*for (i=b+2;i<=qq[1]-1-(n-1)/8;i++) for waist*/
 	{
 			v1=u[i][2]-u[i][1];
 		    v2=u[i][2]-u[i][1];
@@ -210,7 +204,7 @@ void **nrfunc4new(double **f, double **u, int n, int *qq,int b,double R0, double
 			v5=u[i][j]-u[i-1][j];
 			f[i][j]=K*pow(sin(u[i][j]),2)/(h*(i-1))+((K*pow(cos(u[i][j]),2)+1.0*pow(sin(u[i][j]),2))*(i-1))*pow(v4+v5,2)/(4.0*h)
 				+(K*pow(sin(u[i][j]),2)+1.0*pow(cos(u[i][j]),2))*(i-1)*pow((v1+v2),2)/(4.0*h)-((K-1.0)*sin(2.0*u[i][j])*(i-1))*(v1+v2)*(v4+v5)/(4.0*h)
-				+(K*sin(2.0*u[i][j]))*(v4+v5)/(2.0*h)+K*(cos(2.0*u[i][j])-1.0)*(v1+v2)/(2.0*h);*/
+				+(K*sin(2.0*u[i][j]))*(v4+v5)/(2.0*h)+K*(cos(2.0*u[i][j])-1.0)*(v1+v2)/(2.0*h);
 	        		
 	return 0;
 }

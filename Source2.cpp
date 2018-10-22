@@ -34,20 +34,23 @@ int main()
     int i,j,k,n,ncycle=5,ii,ii2,ii3,ii4,sos,kk,radius,min,n1;
     double **u,*x,*y,*z,*z2,*q,**v,**f;
     int *qq;
-    double result,zero,rev2,rev3,v1,v2,v4,K,t,sum,result22,sum2,fff,dfff,KK,K1,K2,R1,R2,RR,XX;
+    double result,zero,rev2,rev3,v1,v2,v4,K,t,sum,result22,sum2,fff,dfff,KK,K1,K2,R1,R2,RR,XX,h1,h2,R11,R22,RRR,R00;
 	double m,point,point2,H,h,R0; int a,b; 
 	FILE *fp,*fp2,*fp3;
-
+	h1=0.2;h2=1.0;
 	printf ("Number of lattices vertically, n:");
 	scanf("%d", &n);
 	//	n=17;
 
-	printf ("Initial aspect ratio, R1:");
-	scanf("%lf", &R1);
-	printf ("Final aspect ratio, R2:");
-	scanf("%lf", &R2);
-        printf ("Aspect ratio increment, RR:");
-	scanf("%lf", &RR);
+	printf ("Initial aspect ratio, R11:");
+	scanf("%lf", &R11);
+	R1=2.0*R11;
+	printf ("Final aspect ratio, R22:");
+	scanf("%lf", &R22);
+	R2=2.0*R22;
+        printf ("Aspect ratio increment, RRR:");
+	scanf("%lf", &RRR);
+	RR=2.0*RRR;
 	
 	H=1.0;
 	
@@ -63,8 +66,8 @@ int main()
 	scanf("%d", &b);
 	// b=1;/*radius of the point or small radius of the ring*/
 	kk=1+2*b;/*location of the smallest ring*/
-        printf ("Types of defect structures (radial:1.0, hyperbolic:-1.0), m:");
-	scanf("%lf", &m);
+        //printf ("Types of defect structures (radial:1.0, hyperbolic:-1.0), m:");
+	//scanf("%lf", &m);
 	//m=1.0;
 	a=kk;	
 	
@@ -75,14 +78,15 @@ int main()
     }
 	  
 
-	  printf("Number of lattices vertically n=%d\nNumber of the lattice spaces the length of the core occupies b=%d\nDefect type m=%f\n",n,b,m);
+	  printf("Number of lattices vertically n=%d\nNumber of the lattice spaces the length of the core occupies b=%d\n",n,b);
  
-fprintf(fp,"Number of lattices vertically n=%d\nNumber of the lattice spaces the length of the core occupies b=%d\nDefect type m=%f\n",n,b,m);
+fprintf(fp,"Number of lattices vertically n=%d\nNumber of the lattice spaces the length of the core occupies b=%d\n",n,b);
 
  
   for (K=K1;K<=K2;K=K+KK) //different Frank constant ratios
    for(R0=R1;R0<=R2;R0=R0+RR)//different aspect ratios
-	     {	    
+	     {
+	       m=-1.0;
     u=dmatrix2new(1,(int)(n*R0-R0+1),1,(int)(n*H-H+1));
 	v=dmatrix2new(1,(int)(n*R0-R0+1),1,(int)(n*H-H+1));
 	q=dvectornew(1,(int)(n*H-H+1));
@@ -104,19 +108,23 @@ fprintf(fp,"Number of lattices vertically n=%d\nNumber of the lattice spaces the
 	//initial and outer boundary conditions
 for (j=1;j<=(int)(n*H-H+1);j++)
 		{
-			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);/*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4) for barrel; 
+		  R00=0.5*R0;
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);/*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4) for barrel; 
 R0-0.75*pow(H,4)+0.75*pow(1.0*(j-1)/(n-1),4) for waist*/
 
 		  /*printf("q[%d]=%f\n",j,q[j]);*/
 		  qq[j]=round(n*q[j]-q[j]+1)/*(int)(n)+j-1*//*printf("{%f, %f},\n",1.0*(qq[j]-1)/(n-1),1.0*(j-1)/(n-1))*/;
+		  	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
 
-for (j=(int)(n*H-H+1);j>=1;j--)
+/*really new for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
  
 for(i=1;i<=(int)(n*R0-R0+1);i++)
@@ -204,16 +212,20 @@ n1=1;
 		//initial and outer boundary
 		for (j=1;j<=(int)(n*H-H+1);j++)
 		{
-			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+		  R00=0.5*R0;
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+		  	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
 
-		for (j=(int)(n*H-H+1);j>=1;j--)
+		/*	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
  for(j=1;j<=(int)(n*H-H+1);j++)
@@ -330,15 +342,19 @@ n1=1;
 	//initial and outer boundary conditions
 	for (j=1;j<=(int)(n*H-H+1);j++)
 		{
-			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+		R00=0.5*R0;	
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+		  	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
-	for (j=(int)(n*H-H+1);j>=1;j--)
+	/* really new	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
  for(j=1;j<=(int)(n*H-H+1);j++)
@@ -441,7 +457,12 @@ for(j=2;j<=(int)(n*H-H+1)-1;j++)
 	}
 }
 
+	//something new
+	printf("Defect type m=%f, Frank constant ratio K=%f, aspect ratio R00=%f, ring radius=%d, total energy=%f\n",m, K,R00,radius,result);	
+	fprintf(fp,"Defect type m=%f, Frank constant ratio K=%f, aspect ratio R00=%f, ring radius=%d, total energy=%f\n",m, K,R00,radius,result);
 
+
+	m=1.0;
 	//radial type
 	
 	if (m==1.0)
@@ -459,17 +480,21 @@ for(j=2;j<=(int)(n*H-H+1)-1;j++)
 	//initial and outer boundary conditions
 	for (j=1;j<=(int)(n*H-H+1);j++)
 		{
-			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+			R00=0.5*R0;
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+		  	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		  
 		}
 
-	for (j=(int)(n*H-H+1);j>=1;j--)
+	/*really new	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
  
 for(i=1;i<=(int)(n*R0-R0+1);i++)
@@ -558,17 +583,21 @@ n1=1;
 
 for (j=1;j<=(int)(n*H-H+1);j++)
 		{
-			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+			R00=0.5*R0;
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+		  	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
 
  
-		for (j=(int)(n*H-H+1);j>=1;j--)
+/*really new	for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
  
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
@@ -694,15 +723,19 @@ for(kk=1+2*b;kk<=qq[1]-b-1;kk++)
 	//initial and outer boundary conditions
 for (j=1;j<=(int)(n*H-H+1);j++)
 		{
-			
-		  q[j]=0.5*R0+0.75*pow(H,4)-0.75*pow(1.0*(j-1)/(n-1),4);
+			R00=0.5*R0;
+		  q[j]=0.5*R0+h1*pow(H,h2)-h1*pow(1.0*(j-1)/(n-1),h2);
 		  qq[j]=round(n*q[j]-q[j]+1);
+		  	if (qq[j]>(int)(n*R0-R0+1))//something new
+	  {
+	    qq[j]=(int)(n*R0-R0+1);
+	  }
 		}
- for (j=(int)(n*H-H+1);j>=1;j--)
+/*really new for (j=(int)(n*H-H+1);j>=1;j--)
    {
      if (qq[j]!=round(n*q[1]-q[1]+1)&&qq[j]==qq[j+1])
        qq[j]=qq[j]+1;
-       }
+       }*/
 
 
 	for(i=1;i<=(int)(n*R0-R0+1);i++)
@@ -808,8 +841,8 @@ for(j=2;j<=(int)(n*H-H+1)-1;j++)
 
 
 			
-	printf("Frank constant ratio K=%f, aspect ratio R0=%f, ring radius=%d, total energy=%f\n",K,R0,radius,result);	
-	fprintf(fp,"Frank constant ratio K=%f, aspect ratio R0=%f, ring radius=%d, total energy=%f\n",K,R0,radius,result);
+	printf("Defect type m=%f, Frank constant ratio K=%f, aspect ratio R00=%f, ring radius=%d, total energy=%f\n",m,K,R00,radius,result);	
+	fprintf(fp,"Defect type m=%f, Frank constant ratio K=%f, aspect ratio R00=%f, ring radius=%d, total energy=%f\n",m,K,R00,radius,result);
 	     }	
 
 	fclose (fp);
