@@ -462,7 +462,7 @@ for(j=2;j<=(int)(n*H-H+1)-1;j++)
 	fprintf(fp,"Defect type m=%f, Frank constant ratio K=%f, aspect ratio R00=%f, ring radius=%d, total energy=%f\n",m, K,R00,radius,result);
 
 
-	m=1.0;
+	//	m=1.0;
 	//radial type
 	
 	if (m==1.0)
